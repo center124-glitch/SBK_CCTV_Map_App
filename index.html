@@ -161,6 +161,39 @@
   #kpiTotal .kbar{height:6px;border-radius:99px;background:rgba(128,140,170,.28);overflow:hidden}
   #kpiTotal .kbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c),var(--c2))}
   #kpiTotal .gtag{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--c);color:var(--c);white-space:nowrap}
+  /* v4.3 การ์ดสรุปเป็นตัวเลือกมุมมองรายละเอียด */
+  #kpiTotal .kpi[data-sel]{cursor:pointer;outline:none}
+  #kpiTotal .kpi[data-sel]:focus-visible{box-shadow:0 0 0 3px rgb(var(--panel)),0 0 0 5px var(--c)}
+  #kpiTotal .kpi.on{border-color:var(--c);box-shadow:0 0 0 2px var(--c),0 18px 34px -16px var(--c);transform:translateY(-2px)}
+  #kpiTotal .kpi .pick{position:absolute;right:12px;top:12px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;color:rgb(var(--muted));border:1px solid rgb(var(--line2));background:rgb(var(--panel)/.6)}
+  #kpiTotal .kpi[data-sel]>.flex:first-of-type{padding-right:92px}
+  #kpiTotal .kpi.on .pick{color:#fff;border-color:transparent;background:linear-gradient(135deg,var(--c),var(--c2))}
+  #kpiTotal .kpi.on::after{content:"";position:absolute;left:50%;bottom:-1px;width:16px;height:9px;transform:translateX(-50%);background:var(--c);clip-path:polygon(0 100%,50% 0,100% 100%)}
+  #kpiTotal .mapgo{font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid var(--c);color:var(--c);background:transparent}
+  #kpiTotal .mapgo:hover{background:var(--c);color:#fff}
+  .dhint{font-size:12px;color:rgb(var(--faint));display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:-6px}
+  .dhint b{color:rgb(var(--ink))}
+  #dashBody section:has(.dsec-all){--s1:#38bdf8;--s2:#22c55e;--st:rgba(56,189,248,.12);--sb:rgba(56,189,248,.38)}
+  #dashBody section:has(.dsec-cnt){--s1:#22c55e;--s2:#f97316;--st:rgba(34,197,94,.12);--sb:rgba(34,197,94,.38)}
+  #dashBody section:has(.dsec-bad){--s1:#fb7185;--s2:#fb923c;--st:rgba(251,113,133,.12);--sb:rgba(251,113,133,.38)}
+  .dtab{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+  .dtab th{font-size:11px;font-weight:600;color:rgb(var(--muted));text-align:right;padding:6px 8px;border-bottom:1px solid rgb(var(--line));white-space:nowrap}
+  .dtab th:first-child,.dtab td:first-child{text-align:left;white-space:nowrap}
+  .dtab td{padding:6px 8px;border-bottom:1px solid rgb(var(--line)/.6);text-align:right;font-variant-numeric:tabular-nums}
+  .dtab tbody tr{cursor:pointer;transition:background .15s}
+  .dtab tbody tr:hover{background:rgb(var(--raise))}
+  .dtab tfoot td{font-weight:800;border-bottom:0;border-top:2px solid rgb(var(--line2))}
+  .dtab .z{color:rgb(var(--faint))}
+  .dbar{display:flex;height:9px;border-radius:99px;overflow:hidden;background:rgba(128,140,170,.2);min-width:80px}
+  .dbar i{display:block;height:100%}
+  .dchip{font-size:11.5px;padding:3px 10px;border-radius:99px;border:1px solid rgb(var(--line2));color:rgb(var(--muted))}
+  .dchip[aria-pressed="true"]{color:#fff;border-color:transparent;background:linear-gradient(135deg,#16a34a,#f97316)}
+  .dsearch{background:rgb(var(--raise));border:1px solid rgb(var(--line2));border-radius:10px;padding:5px 10px;font-size:12.5px;outline:none;min-width:0}
+  .dsearch:focus{border-color:#22c55e}
+  .citem2{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:12px;border:1px solid rgb(var(--line));background:rgb(var(--raise));text-align:left;min-width:0}
+  .citem2:hover{border-color:var(--c)}
+  .mini{display:grid;gap:8px}
+  .mini .row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:12.5px}
   .kpi-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgb(var(--muted));font-weight:600;margin-bottom:-4px}
   #dashBody section{position:relative;background:linear-gradient(180deg,var(--st,rgba(129,140,248,.10)),rgb(var(--panel)) 58%);border-color:var(--sb,rgba(129,140,248,.35))}
   #dashBody section::before{content:"";position:absolute;left:0;top:0;right:0;height:4px;border-radius:16px 16px 0 0;background:linear-gradient(90deg,var(--s1,#818cf8),var(--s2,#e879f9))}
@@ -364,7 +397,10 @@
         </div>
         <div id="dashStamp" class="text-[12px] text-faint"></div>
       </div>
-      <div id="kpiTotal" aria-label="สรุปยอดรวมกล้องทั้งหมด"></div>
+      <div id="kpiTotal" role="tablist" aria-label="สรุปยอดรวมกล้องทั้งหมด — กดการ์ดเพื่อดูรายละเอียด"></div>
+      <div class="dhint"><span>👆 กดการ์ดด้านบนเพื่อสลับมุมมอง · กำลังแสดง:</span><b id="dselName">ภาพรวมทั้งอาคาร</b></div>
+      <div id="detPanel" class="flex flex-col gap-4" role="tabpanel"></div>
+      <div id="detCctv" class="flex flex-col gap-4" role="tabpanel" hidden>
       <div class="kpi-sub">รายละเอียดกล้อง CCTV</div>
       <div id="kpis" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"></div>
       <div class="grid lg:grid-cols-[1.6fr_1fr] gap-3">
@@ -390,6 +426,7 @@
           <div class="flex items-baseline justify-between mb-2"><h3 class="font-semibold">กล้องที่ยังไม่มี IP</h3><span id="pendNote" class="text-[11px] text-faint"></span></div>
           <div id="pendList" class="grid sm:grid-cols-2 gap-1.5 max-h-[220px] overflow-auto scroll-thin"></div>
         </section>
+      </div>
       </div>
     </div>
   </main>
@@ -507,7 +544,7 @@ const IMG = f => (state.mode==='count' ? CIMAGES : IMAGES)[f.id];
 const IP_RE = /^10\.2\.(154|155)\.(\d{1,3})$/; // ทุก IP ในแบบอยู่วง 10.2.154/155 จึงตรวจรูปแบบนี้เพื่อกันพิมพ์ผิด
 
 const state = { meta:{}, typeF:'', mapLight:null, floor:null, scale:1, tx:0, ty:0, labels:true, scope:'floor', sel:null, tab:'map',
-                overrides:{}, sort:{key:'floor',dir:1}, charts:{}, mode:'cctv', cntF:'', selC:null, cmeta:{} };
+                overrides:{}, sort:{key:'floor',dir:1}, charts:{}, mode:'cctv', cntF:'', selC:null, cmeta:{}, dsel:(()=>{ try{ const v=localStorage.getItem('sbk-cctv-dsel'); return ['all','cctv','count','bad'].includes(v)?v:'all' }catch(e){ return 'all' } })(), dq:'', dg:'' };
 let fitScale = 1;
 
 /* ---------- storage: ห่อ try/catch เพราะบางเบราว์เซอร์ (private mode) จะ throw ---------- */
@@ -555,7 +592,7 @@ function cntOff(c){ const g=state.cntF; if(!g) return false; if(g==='!') return 
 function cntTypeText(c){ return [c.t,c.mp].filter(Boolean).join(' ')+' · '+CNT_G[c.g].n; }
 // IP ของกล้อง Counting ที่ตรงกับกล้อง CCTV (เช่น 10.2.154.181) — แจ้งเตือนเฉย ๆ ไม่แก้ข้อมูลใด
 function cntClash(ip){ const h=allCams().find(c=>c.ip===ip); return h ? `${h.f.name} ลำดับ ${h.i+1}` : ''; }
-function setMode(m, quiet){
+function setMode(m, quiet, to){ // to = {f: ชั้นปลายทาง, i: ลำดับกล้อง (CCTV=ตัวเลข, Counting='c'+n)}
   if(m!=='cctv' && m!=='count') m='cctv';
   state.mode=m; try{ localStorage.setItem('sbk-cctv-mode',m) }catch(e){}
   document.body.classList.toggle('mode-count', m==='count');
@@ -573,7 +610,8 @@ function setMode(m, quiet){
   // เปิดชั้นเดียวกันถ้ามีในชุดใหม่ ไม่มีก็ใช้ชั้นที่จำไว้ของโหมดนั้น / ชั้น 1
   const cur=state.floor?.id; let id=FL().some(f=>f.id===cur)?cur:null;
   if(!id){ try{ const sv=localStorage.getItem(m==='count'?'sbk-cctv-cfloor':'sbk-cctv-floor'); if(FL().some(f=>f.id===sv)) id=sv }catch(e){} }
-  state.floor=null; renderRail(); showFloor(id||'1');
+  if(to && FL().some(f=>f.id===to.f)) id=to.f;
+  state.floor=null; renderRail(); showFloor(id||'1', to?.i);
   if(!quiet) toast(m==='count'?`โหมดกล้อง Counting — ใช้แบบ Counting (${CNT_TOTAL} ตัว)`:'โหมดกล้อง CCTV — ใช้แบบ CCTV เดิม');
 }
 function updFloorCount(){ const f=state.floor; if(!f) return;
@@ -584,7 +622,7 @@ function focusCnt(i){
   state.scale=Math.min(Math.max(state.scale,fitScale*4.5),fitScale*14);
   state.tx=s.width/2-c.p[0]*state.scale; state.ty=s.height/2-c.p[1]*state.scale; apply(); selectCnt(i);
 }
-function gotoCnt(fid,i){ if(state.mode!=='count') setMode('count',true); if(state.floor.id!==fid) showFloor(fid,'c'+i); else focusCnt(i); }
+function gotoCnt(fid,i){ if(state.mode!=='count') return setMode('count',true,{f:fid,i:'c'+i}); if(state.floor.id!==fid) showFloor(fid,'c'+i); else focusCnt(i); }
 function selectCnt(i){
   state.selC=i; state.sel=null; renderOverlay();
   const pin=document.querySelector(`.cpin[data-c="${i}"]`); if(pin){ pin.classList.remove('hit'); void pin.getBBox(); pin.classList.add('hit'); }
@@ -865,25 +903,95 @@ function renderKpiTotal(all){
   const card=(st,body,attrs='',cls='')=>`<div class="kpi ${cls} border rounded-2xl p-4 relative overflow-hidden" style="${st}" ${attrs}>${body}</div>`;
   const head=(ico,t)=>`<div class="flex items-center gap-2 mb-1"><span class="ico">${ico}</span><span class="text-[12px] text-muted font-semibold">${t}</span></div>`;
   const num=(v,c)=>`<div class="font-mono font-extrabold leading-tight tabular-nums" style="font-size:32px;color:${c}">${v.toLocaleString('th-TH')}</div>`;
+  const sel=state.dsel||'all', pick=(k,attrs='')=>`role="tab" tabindex="0" data-sel="${k}" aria-selected="${sel===k}" ${attrs}`;
+  const badge=k=>`<span class="pick">${sel===k?'กำลังดู':'ดูรายละเอียด'}</span>`;
   $('kpiTotal').innerHTML=
     card('--c:#38bdf8;--c2:#22c55e;--cs:#38bdf830;--cb:#38bdf870',
-      head('🎯','กล้องทั้งหมดในอาคาร')+
+      badge('all')+head('🎯','กล้องทั้งหมดในอาคาร')+
       `<div class="flex items-end gap-3 flex-wrap">${num(tot,col('#7dd3fc','#0369a1'))}<div class="text-[12px] text-muted" style="padding-bottom:6px">= CCTV <b class="font-mono">${nC}</b> + Counting <b class="font-mono">${nK}</b></div></div>
        <div class="split mt-2" title="สัดส่วน CCTV / Counting"><i style="width:${pC}%;background:linear-gradient(90deg,#60a5fa,#6366f1)"></i><i style="width:${pK}%;background:linear-gradient(90deg,#22c55e,#f97316)"></i></div>
        <div class="flex flex-wrap mt-1.5 text-[11px] text-faint" style="column-gap:14px;row-gap:4px"><span><i class="sqc" style="--c:#60a5fa;margin-right:5px"></i>CCTV ${pC.toFixed(1)}%</span><span><i class="sqc" style="--c:#22c55e;margin-right:5px"></i>Counting ${pK.toFixed(1)}%</span><span>ชำรุด/ซ่อมรวม ${badC+badK} จุด</span></div>`,
-      '','kt-main')+
+      pick('all'),'kt-main'+(sel==='all'?' on':''))+
     card('--c:#60a5fa;--c2:#a78bfa;--cs:#60a5fa30;--cb:#60a5fa70',
-      head('📷','กล้อง CCTV')+num(nC,col('#60a5fa','#2563eb'))+
-      `<div class="text-[11px] text-faint">${fl} ชั้น · มี IP ${ipC} (${pctIp}%)</div><div class="kbar mt-2"><i style="width:${pctIp}%"></i></div>`,
-      'data-go="cctv" title="ดูแผนผังกล้อง CCTV"')+
+      badge('cctv')+head('📷','กล้อง CCTV')+num(nC,col('#60a5fa','#2563eb'))+
+      `<div class="text-[11px] text-faint">${fl} ชั้น · มี IP ${ipC} (${pctIp}%)</div><div class="kbar mt-2"><i style="width:${pctIp}%"></i></div>
+       <div class="mt-2"><button class="mapgo" data-go="cctv" title="เปิดแผนผังกล้อง CCTV">แผนผัง ↗</button></div>`,
+      pick('cctv'),sel==='cctv'?'on':'')+
     card('--c:#22c55e;--c2:#f97316;--cs:#22c55e30;--cb:#22c55e70',
-      head('🚶','กล้อง Counting')+num(nK,col('#4ade80','#15803d'))+
-      `<div class="text-[11px] text-faint">${flK} ชั้น (B, 1–4)</div><div class="flex flex-wrap gap-1 mt-1.5">${grp.map(([g,n])=>`<span class="gtag" style="--c:${CC[g]}">${CNT_G[g].s} ${n}</span>`).join('')}</div>`,
-      'data-go="count" title="ดูแผนผังกล้อง Counting"')+
+      badge('count')+head('🚶','กล้อง Counting')+num(nK,col('#4ade80','#15803d'))+
+      `<div class="text-[11px] text-faint">${flK} ชั้น (B, 1–4)</div><div class="flex flex-wrap gap-1 mt-1.5">${grp.map(([g,n])=>`<span class="gtag" style="--c:${CC[g]}">${CNT_G[g].s} ${n}</span>`).join('')}</div>
+       <div class="mt-2"><button class="mapgo" data-go="count" title="เปิดแผนผังกล้อง Counting">แผนผัง ↗</button></div>`,
+      pick('count'),sel==='count'?'on':'')+
     card('--c:#fb7185;--c2:#f472b6;--cs:#fb718530;--cb:#fb718570',
-      head('🛠️','ชำรุด / ส่งซ่อม (รวม)')+num(badC+badK,col('#fb7185','#e11d48'))+
-      `<div class="text-[11px] text-faint">CCTV ${badC} · Counting ${badK}</div><div class="kbar mt-2"><i style="width:${tot?Math.round((badC+badK)/tot*100):0}%"></i></div>`,'','kt-bad');
-  $('kpiTotal').querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>{ switchTab('map'); if(state.mode!==el.dataset.go) setMode(el.dataset.go); });
+      badge('bad')+head('🛠️','ชำรุด / ส่งซ่อม (รวม)')+num(badC+badK,col('#fb7185','#e11d48'))+
+      `<div class="text-[11px] text-faint">CCTV ${badC} · Counting ${badK}</div><div class="kbar mt-2"><i style="width:${tot?Math.round((badC+badK)/tot*100):0}%"></i></div>`,pick('bad'),'kt-bad'+(sel==='bad'?' on':''));
+  $('kpiTotal').querySelectorAll('.mapgo').forEach(el=>el.onclick=e=>{ e.stopPropagation(); switchTab('map'); if(state.mode!==el.dataset.go) setMode(el.dataset.go); });
+  $('kpiTotal').querySelectorAll('[data-sel]').forEach(el=>{
+    el.onclick=()=>setDsel(el.dataset.sel);
+    el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setDsel(el.dataset.sel) }
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){ const o=['all','cctv','count','bad'], i=o.indexOf(el.dataset.sel); setDsel(o[(i+(e.key==='ArrowRight'?1:3))%4], true) } };
+  });
+  renderDetail(all);
+}
+const DSEL_NAME={all:'ภาพรวมทั้งอาคาร (CCTV + Counting รายชั้น)',cctv:'รายละเอียดกล้อง CCTV',count:'รายละเอียดกล้อง Counting',bad:'กล้องชำรุด / ส่งซ่อม (ทุกระบบ)'};
+function setDsel(v,focus){
+  if(!DSEL_NAME[v]||state.dsel===v){ if(state.dsel===v) $('detPanel').scrollIntoView?.({behavior:'smooth',block:'nearest'}); return; }
+  state.dsel=v; try{ localStorage.setItem('sbk-cctv-dsel',v) }catch(e){}
+  // CCTV ใช้กราฟ Chart.js ต้องวาดใหม่ตอนกล่องแสดงอยู่แล้วเท่านั้น จึงเรียก renderDash ทั้งชุด
+  if(v==='cctv') renderDash(); else renderKpiTotal(allCams());
+  if(focus) $('kpiTotal').querySelector(`[data-sel="${v}"]`)?.focus();
+}
+// แผงรายละเอียดตามการ์ดที่เลือก (all / count / bad) — CCTV ใช้กราฟชุดเดิมใน #detCctv
+function renderDetail(all){
+  const v=state.dsel||'all', P=$('detPanel'), LT=isLight(), CC=CNT_COL[LT?'light':'dark'];
+  $('dselName').textContent=DSEL_NAME[v];
+  $('detCctv').hidden = v!=='cctv'; P.hidden = v==='cctv';
+  if(v==='cctv'){ P.innerHTML=''; return; }
+  const ca=allCnts(), cByF=f=>all.filter(c=>c.f===f), kByF=id=>{ const cf=CFLOORS.find(x=>x.id===id); return cf?floorCnts(cf):[] };
+  const sec=(cls,title,note,body)=>`<section class="bg-panel border border-line rounded-2xl p-4 min-w-0"><div class="flex items-baseline justify-between mb-2 gap-2 flex-wrap ${cls}"><h3 class="font-semibold">${title}</h3><span class="text-[11px] text-faint">${note}</span></div>${body}</section>`;
+  const z=n=>n?n:'<span class="z">–</span>';
+  if(v==='all'){
+    const rows=FLOORS.map(f=>{ const a=cByF(f), k=kByF(f.id); return {f,nc:a.length,nk:k.length,ip:a.filter(c=>c.ip).length,bad:a.filter(c=>c.cond!=='ok').length+k.filter(c=>c.cond!=='ok').length} });
+    const mx=Math.max(...rows.map(r=>r.nc+r.nk),1), T=k=>rows.reduce((a,r)=>a+r[k],0);
+    const tbl=`<div class="overflow-auto scroll-thin"><table class="dtab"><thead><tr><th>ชั้น</th><th>CCTV</th><th>Counting</th><th>รวม</th><th style="text-align:left;width:38%">สัดส่วน</th><th>ชำรุด/ซ่อม</th><th></th></tr></thead><tbody>${
+      rows.map(r=>`<tr data-gf="${r.f.id}" data-gm="${r.nk&&!r.nc?'count':'cctv'}" title="เปิดแผนผัง ${esc(r.f.name)}"><td class="font-semibold">${esc(r.f.name)}</td><td>${z(r.nc)}</td><td>${z(r.nk)}</td><td class="font-bold">${r.nc+r.nk}</td>
+        <td style="text-align:left"><div class="dbar" style="width:${Math.max(8,(r.nc+r.nk)/mx*100)}%"><i style="width:${(r.nc/(r.nc+r.nk||1))*100}%;background:linear-gradient(90deg,#60a5fa,#6366f1)"></i><i style="width:${(r.nk/(r.nc+r.nk||1))*100}%;background:linear-gradient(90deg,#22c55e,#f97316)"></i></div></td>
+        <td>${r.bad?`<span class="text-rose font-bold">${r.bad}</span>`:'<span class="z">–</span>'}</td>
+        <td style="white-space:nowrap">${r.nc?`<button class="mapgo2 dchip" data-gf="${r.f.id}" data-gm="cctv">CCTV ↗</button>`:''} ${r.nk?`<button class="mapgo2 dchip" data-gf="${r.f.id}" data-gm="count">Counting ↗</button>`:''}</td></tr>`).join('')
+      }</tbody><tfoot><tr><td>รวมทั้งอาคาร</td><td>${T('nc')}</td><td>${T('nk')}</td><td>${T('nc')+T('nk')}</td><td></td><td>${T('bad')||'–'}</td><td></td></tr></tfoot></table></div>`;
+    const ipC=all.filter(c=>c.ip).length, st=s=>all.filter(c=>c.s===s).length;
+    const line=(lab,n,tot,col)=>`<div class="row"><span>${lab}</span><div class="dbar"><i style="width:${tot?n/tot*100:0}%;background:${col}"></i></div><b class="font-mono">${n}</b></div>`;
+    const sysC=line('มี IP แล้ว',ipC,all.length,'#22d3ee')+line('ยังไม่มี IP',st('pend'),all.length,'#c084fc')+line('มี * ในแบบ',all.filter(c=>c.star&&!c.edited).length,all.length,'#fbbf24')+line('ชำรุด/ซ่อม',all.filter(c=>c.cond!=='ok').length,all.length,'#fb7185');
+    const sysK=Object.keys(CNT_G).map(g=>line(CNT_G[g].n,ca.filter(c=>c.g===g).length,ca.length,CC[g])).join('')+line('ชำรุด/ซ่อม',ca.filter(c=>c.cond!=='ok').length,ca.length,'#fb7185');
+    P.innerHTML=sec('dsec-all','จำนวนกล้องรายชั้น (CCTV + Counting)','กดแถวเพื่อเปิดแผนผังชั้นนั้น',tbl)+
+      `<div class="grid lg:grid-cols-2 gap-3">${sec('dsec-all',`กล้อง CCTV · ${all.length} ตัว`,'สถานะ IP / สภาพกล้อง',`<div class="mini">${sysC}</div>`)}${sec('dsec-cnt',`กล้อง Counting · ${ca.length} ตัว`,'แยกตามระบบ',`<div class="mini">${sysK}</div>`)}</div>`;
+  }
+  if(v==='count'){
+    const gs=Object.keys(CNT_G), cf=[...CFLOORS];
+    const tbl=`<div class="overflow-auto scroll-thin"><table class="dtab"><thead><tr><th>ชั้น</th>${gs.map(g=>`<th><span class="sqc" style="--c:${CC[g]};margin-right:5px"></span>${CNT_G[g].s}</th>`).join('')}<th>รวม</th><th>ชำรุด/ซ่อม</th></tr></thead><tbody>${
+      cf.map(f=>{ const k=floorCnts(f), b=k.filter(c=>c.cond!=='ok').length; return `<tr data-gf="${f.id}" data-gm="count" title="เปิดแผนผัง Counting ${esc(f.name)}"><td class="font-semibold">${esc(f.name)}</td>${gs.map(g=>`<td>${z(k.filter(c=>c.g===g).length)}</td>`).join('')}<td class="font-bold">${k.length}</td><td>${b?`<span class="text-rose font-bold">${b}</span>`:'<span class="z">–</span>'}</td></tr>` }).join('')
+      }</tbody><tfoot><tr><td>รวม</td>${gs.map(g=>`<td>${ca.filter(c=>c.g===g).length}</td>`).join('')}<td>${ca.length}</td><td>${ca.filter(c=>c.cond!=='ok').length||'–'}</td></tr></tfoot></table></div>`;
+    const clash=ca.filter(c=>cntClash(c.ip));
+    P.innerHTML=sec('dsec-cnt','กล้อง Counting รายชั้น × ระบบ','กดแถวเพื่อเปิดแผนผัง Counting ชั้นนั้น',tbl+(clash.length?`<div class="mt-2 text-[12px] text-orange-400">⚠ IP ที่ตรงกับกล้อง CCTV: ${clash.map(c=>`<b class="font-mono">${esc(c.ip)}</b> (Counting ${esc(c.f.name)} ↔ CCTV ${esc(cntClash(c.ip))})`).join(', ')}</div>`:''))+
+      sec('dsec-cnt','รายการ IP กล้อง Counting',`ทั้งหมด ${ca.length} ตัว — กดเพื่อไปยังตำแหน่งบนแผนผัง`,
+        `<div class="flex flex-wrap items-center gap-1.5 mb-2"><input id="dq" class="dsearch" placeholder="ค้นหา IP เช่น 154.208" value="${esc(state.dq||'')}" style="flex:1 1 180px">${['',...gs].map(g=>`<button class="dchip" data-dg="${g}" aria-pressed="${(state.dg||'')===g}">${g?CNT_G[g].s:'ทุกระบบ'}</button>`).join('')}</div>
+         <div id="dcList" class="flex flex-col gap-3 max-h-[420px] overflow-auto scroll-thin"></div>`);
+    const draw=()=>{ const q=normQ(state.dq||''), g=state.dg||''; let h='';
+      cf.forEach(f=>{ const k=floorCnts(f).filter(c=>(!g||c.g===g)&&(!q||c.ip.includes(q))).sort((a,b)=>cmpIP(a.ip,b.ip)); if(!k.length) return;
+        h+=`<div><div class="text-[11px] tracking-[.1em] uppercase text-faint mb-1">${esc(f.name)} · ${k.length}</div><div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-1.5">${k.map(c=>`<button class="citem2 gotoc g-${c.g}" data-f="${f.id}" data-c="${c.i}" style="--c:${CC[c.g]}"><i class="sqc"></i><span class="font-mono font-semibold text-[12.5px]">${esc(c.ip)}</span><span class="text-muted text-[11.5px] truncate" style="flex:1">${esc([c.t,c.mp].filter(Boolean).join(' '))}${c.note?' · '+esc(c.note):''}</span>${c.cond!=='ok'?`<span class="text-[10px] px-1.5 rounded-full ${c.cond==='broken'?'bg-rose/15 text-rose':'bg-orange-400/15 text-orange-400'}">${COND[c.cond]}</span>`:''}<span class="cbadge">${CNT_G[c.g].s}</span></button>`).join('')}</div></div>` });
+      $('dcList').innerHTML=h||`<div class="text-muted text-[13px] p-2">ไม่พบ IP “${esc(state.dq||'')}”</div>`; };
+    draw();
+    $('dq').oninput=e=>{ state.dq=e.target.value; draw() };
+    P.querySelectorAll('[data-dg]').forEach(b=>b.onclick=()=>{ state.dg=b.dataset.dg; P.querySelectorAll('[data-dg]').forEach(x=>x.setAttribute('aria-pressed',x===b)); draw() });
+  }
+  if(v==='bad'){
+    const bc=all.filter(c=>c.cond!=='ok'), bk=ca.filter(c=>c.cond!=='ok');
+    const item=(c,isK)=>`<button class="citem2 ${isK?'gotoc':'goto'}" data-f="${c.f.id}" ${isK?`data-c="${c.i}"`:`data-i="${c.i}"`} style="--c:${c.cond==='broken'?'#fb7185':'#fb923c'}"><i class="w-2 h-2 rounded-full shrink-0 ${c.cond==='broken'?'bg-rose':'bg-orange-400'}"></i><span class="font-mono font-semibold text-[12.5px]">${esc(isK?c.ip:ipText(c))}</span><span class="text-muted text-[11.5px] truncate" style="flex:1">${esc(c.f.name)}${c.note?' · '+esc(c.note):''}</span><span class="text-[10px] px-1.5 rounded-full ${c.cond==='broken'?'bg-rose/15 text-rose':'bg-orange-400/15 text-orange-400'}">${COND[c.cond]}</span></button>`;
+    const empty='<div class="text-mint text-[13px] p-2">ใช้งานปกติทุกตัว</div>';
+    const cnt2=a=>`ชำรุด ${a.filter(c=>c.cond==='broken').length} · ส่งซ่อม ${a.filter(c=>c.cond==='repair').length}`;
+    P.innerHTML=(bc.length+bk.length?'':`<div class="text-[12.5px] text-faint">ยังไม่มีกล้องที่บันทึกว่าชำรุด/ส่งซ่อม — บันทึกได้โดยกดที่กล้องบนแผนผัง แล้วเลือก “ชำรุด” หรือ “ส่งซ่อม”</div>`)+
+      `<div class="grid lg:grid-cols-2 gap-3">${sec('dsec-bad',`กล้อง CCTV · ${bc.length} ตัว`,cnt2(bc),`<div class="grid gap-1.5 max-h-[420px] overflow-auto scroll-thin">${bc.map(c=>item(c,false)).join('')||empty}</div>`)}${sec('dsec-bad',`กล้อง Counting · ${bk.length} ตัว`,cnt2(bk),`<div class="grid gap-1.5 max-h-[420px] overflow-auto scroll-thin">${bk.map(c=>item(c,true)).join('')||empty}</div>`)}</div>`;
+  }
 }
 function renderDash(){
   const all=allCams(), n=s=>all.filter(c=>c.s===s).length;
@@ -1069,7 +1177,7 @@ async function exportPdf(kind){
       if(!window.html2canvas) throw new Error('โหลด html2canvas ไม่ได้');
       if(state.tab!=='dash') switchTab('dash'); await new Promise(r=>setTimeout(r,450));
       const cv=await html2canvas($('dashBody'),{backgroundColor:isLight()?'#eef3fb':'#050a14',scale:2,useCORS:true}); addFit(cv,true);
-      pdf.save(`SBK_CCTV_Dashboard_${stamp()}.pdf`);
+      pdf.save(`SBK_CCTV_Dashboard_${({all:'ภาพรวม',cctv:'CCTV',count:'Counting',bad:'ชำรุด'})[state.dsel]||'ภาพรวม'}_${stamp()}.pdf`);
     } else {
       const CMx=state.mode==='count'; const list = kind==='all' ? FL().slice().reverse() : [state.floor];
       for(let n=0;n<list.length;n++){ $('busyT').textContent=`กำลังสร้าง PDF… ${list[n].name} (${n+1}/${list.length})`; await new Promise(r=>setTimeout(r,20)); addFit(await floorCanvas(list[n],kind==='all'?2600:3400),n===0); }
@@ -1123,7 +1231,11 @@ function handleEvents(){
   $('regToggle').onclick=()=>toggleSide();
 
   document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
-  document.addEventListener('click',e=>{ const g=e.target.closest('.goto'); if(g){ switchTab('map'); if(state.mode!=='cctv') setMode('cctv',true); gotoCam(g.dataset.f,+g.dataset.i) } });
+  document.addEventListener('click',e=>{
+    const k=e.target.closest('.gotoc'); if(k){ switchTab('map'); gotoCnt(k.dataset.f,+k.dataset.c); return; }
+    const r=e.target.closest('[data-gf]'); if(r && r.closest('#detPanel')){ e.stopPropagation(); switchTab('map'); const m=r.dataset.gm; if(state.mode!==m) setMode(m,true,{f:r.dataset.gf}); else showFloor(r.dataset.gf); return; }
+  });
+  document.addEventListener('click',e=>{ const g=e.target.closest('.goto'); if(g){ switchTab('map'); if(state.mode!=='cctv') setMode('cctv',true,{f:g.dataset.f,i:+g.dataset.i}); else gotoCam(g.dataset.f,+g.dataset.i) } });
 
   ['rq','rFloor','rStatus','rCond'].forEach(id=>$(id).addEventListener('input',renderReg));
   $('rBody').addEventListener('change',e=>{ const t=e.target; const f=FLOORS.find(x=>x.id===t.dataset.f); if(!f) return;
@@ -1229,6 +1341,8 @@ function setupIdle(){
 
 /* ---------- พื้นหลังเคลื่อนไหวหน้าแดชบอร์ด: โหนดเครือข่ายกล้องลอยเชื่อมกัน + แสงออโรร่า ---------- */
 const fx={ raf:0, nodes:[], t:0 };
+// v4.3 ปรับให้นิ่งขึ้น ลดอาการลายตา: ความเร็วรวม / ความเร็วจุดลอย / ระยะกะพริบของจุด / ความเข้มเส้นสแกน
+const FX={ speed:0.03, drift:0.08, pulse:0.06, pulseRate:200, scan:0.4 }; // สโลโมชั่น: ช้ากว่าค่าเดิมของแอปราว 16 เท่า
 function startDashFx(){
   const cv=$('dashFx'); if(!cv||fx.raf) return;
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){ drawFx(cv,true); return; }
@@ -1237,9 +1351,15 @@ function startDashFx(){
 }
 function drawFx(cv,still){
   const dpr=Math.min(devicePixelRatio||1,2), W=cv.clientWidth, H=cv.clientHeight;
-  if(cv.width!==W*dpr||cv.height!==H*dpr){ cv.width=W*dpr; cv.height=H*dpr;
-    const n=Math.round(Math.min(90,W*H/16000)); fx.nodes=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.175,vy:(Math.random()-.5)*.175,c:['#38bdf8','#a78bfa','#f472b6','#fbbf24'][Math.random()*4|0],r:1.4+Math.random()*2.2})); }
-  const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); fx.t+=still?0:0.5; // ช้าลง 50% (ออโรร่า กริด จังหวะกะพริบ และเส้นสแกนใช้ fx.t ร่วมกัน)
+  // v4.3 แก้ลายตา: จอที่ตั้งสเกล 125%/150% ทำให้ W*dpr เป็นทศนิยม แต่ canvas.width เก็บเป็นจำนวนเต็ม
+  // เงื่อนไขเดิมจึงเป็นจริงทุกเฟรม → สุ่มตำแหน่งจุดใหม่ทุกเฟรม (เห็นเป็นระยิบระยับ) — ปัดเศษก่อนเทียบ และสุ่มจุดใหม่เฉพาะตอนขนาดเปลี่ยนจริง
+  const PW=Math.round(W*dpr), PH=Math.round(H*dpr);
+  if(cv.width!==PW||cv.height!==PH){ cv.width=PW; cv.height=PH;
+    const n=Math.round(Math.min(90,W*H/16000));
+    if(fx.nodes.length && fx.W){ const sx=W/fx.W, sy=H/fx.H; fx.nodes.forEach(p=>{ p.x*=sx; p.y*=sy }); }
+    fx.W=W; fx.H=H;
+    if(fx.nodes.length!==n) fx.nodes=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.175*FX.drift,vy:(Math.random()-.5)*.175*FX.drift,c:['#38bdf8','#a78bfa','#f472b6','#fbbf24'][Math.random()*4|0],r:1.4+Math.random()*2.2})); }
+  const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); fx.t+=still?0:FX.speed; // ออโรร่า กริด จังหวะกะพริบ และเส้นสแกนใช้ fx.t ร่วมกัน (เดิม 0.5)
   const L=isLight(); g.clearRect(0,0,W,H);
   // ออโรร่า 3 ดวงหมุนวนช้า ๆ
   [['56,189,248',.30,.0],['167,139,250',.26,2.1],['244,114,182',.20,4.2]].forEach(([c,a,o],k)=>{
@@ -1251,9 +1371,9 @@ function drawFx(cv,still){
   // โหนด + เส้นเชื่อม
   const N=fx.nodes; N.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>W) p.vx*=-1; if(p.y<0||p.y>H) p.vy*=-1 });
   for(let i=0;i<N.length;i++) for(let j=i+1;j<N.length;j++){ const a=N[i],b=N[j],d=Math.hypot(a.x-b.x,a.y-b.y); if(d<150){ g.strokeStyle=L?`rgba(79,70,229,${.14*(1-d/150)})`:`rgba(125,211,252,${.22*(1-d/150)})`; g.beginPath(); g.moveTo(a.x,a.y); g.lineTo(b.x,b.y); g.stroke() } }
-  N.forEach((p,i)=>{ const pulse=1+.5*Math.sin(fx.t/30+i); g.fillStyle=p.c; g.globalAlpha=L?.7:.95; g.beginPath(); g.arc(p.x,p.y,p.r*pulse,0,7); g.fill(); g.globalAlpha=1 });
+  N.forEach((p,i)=>{ const pulse=1+FX.pulse*Math.sin(fx.t/FX.pulseRate+i); g.fillStyle=p.c; g.globalAlpha=L?.7:.95; g.beginPath(); g.arc(p.x,p.y,p.r*pulse,0,7); g.fill(); g.globalAlpha=1 });
   // เส้นสแกนกวาดลง
-  const sy=(fx.t*1.2)%(H+200)-100, sg=g.createLinearGradient(0,sy-60,0,sy); sg.addColorStop(0,'rgba(56,189,248,0)'); sg.addColorStop(1,L?'rgba(56,189,248,.10)':'rgba(56,189,248,.14)'); g.fillStyle=sg; g.fillRect(0,sy-60,W,60);
+  const sy=(fx.t*1.2)%(H+200)-100, sg=g.createLinearGradient(0,sy-60,0,sy); sg.addColorStop(0,'rgba(56,189,248,0)'); sg.addColorStop(1,L?`rgba(56,189,248,${.10*FX.scan})`:`rgba(56,189,248,${.14*FX.scan})`); g.fillStyle=sg; g.fillRect(0,sy-60,W,60);
 }
 
 /* ---------- utilities ---------- */
