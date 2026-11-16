@@ -477,7 +477,7 @@
           <th class="px-4 py-2.5 border-b border-line font-semibold cursor-pointer" data-sort="floor">ชั้น ↕</th>
           <th class="px-3 py-2.5 border-b border-line font-semibold">#</th>
           <th class="px-3 py-2.5 border-b border-line font-semibold cursor-pointer" data-sort="ip">IP Address ↕</th>
-          <th class="px-3 py-2.5 border-b border-line font-semibold">ชนิดกล้อง</th>
+          <th class="px-3 py-2.5 border-b border-line font-semibold">ชนิดกล้อง / ความละเอียด <span class="font-normal text-faint">(แก้ได้)</span></th>
           <th id="thSt" class="px-3 py-2.5 border-b border-line font-semibold">สถานะ</th>
           <th id="thIp" class="px-3 py-2.5 border-b border-line font-semibold">กำหนด / แก้ IP</th>
           <th class="px-3 py-2.5 border-b border-line font-semibold">สภาพกล้อง</th>
@@ -613,7 +613,8 @@ function cam(f,i){
   let s = c.s;
   if (o!=null) s = o ? 'edit' : 'pend';
   const m=state.meta[key(f,i)]||{};
-  return { ...c, ip, s, edited:o!=null, i, f, cond:m.cond||'ok', note:m.note||'' };
+  // v4.4 ชนิดกล้อง/ความละเอียดที่แก้ในทะเบียน (ot/omp = ค่าตามแบบเดิม)
+  return { ...c, ip, s, edited:o!=null, i, f, cond:m.cond||'ok', note:m.note||'', ot:c.t, omp:c.mp, t:m.t!=null?m.t:c.t, mp:m.mp!=null?m.mp:c.mp, typeEdited:m.t!=null||m.mp!=null };
 }
 function allCams(){ const out=[]; FLOORS.forEach(f=>f.cams.forEach((_,i)=>out.push(cam(f,i)))); return markDups(out); }
 function floorCams(f){ return markDups(allCams()).filter(c=>c.f===f); }
@@ -626,7 +627,7 @@ function markDups(list){
 /* ---------- กล้อง Counting: ข้อมูลอ่านอย่างเดียว + สภาพ/หมายเหตุของผู้ใช้ ---------- */
 function cnt(f,i){
   const c=f.cams[i], m=state.cmeta[key(f,i)]||{};
-  return { ...c, i, f, cond:m.cond||'ok', note:m.note||'' };
+  return { ...c, i, f, cond:m.cond||'ok', note:m.note||'', ot:c.t, omp:c.mp, t:m.t!=null?m.t:c.t, mp:m.mp!=null?m.mp:c.mp, typeEdited:m.t!=null||m.mp!=null };
 }
 function floorCnts(f){ return CFLOORS.includes(f) ? f.cams.map((_,i)=>cnt(f,i)) : []; }
 function allCnts(){ const out=[]; CFLOORS.forEach(f=>out.push(...floorCnts(f))); return out; }
@@ -690,11 +691,25 @@ function showCntPop(c){
   $('popNote').onkeydown=e=>{ if(e.key==='Enter'){ setCntMeta(f,c.i,{note:e.target.value}); selectCnt(c.i) } };
   $('popNote').onblur=e=>{ if(e.target.value.trim()!==(c.note||'')) setCntMeta(f,c.i,{note:e.target.value}) };
 }
+const metaEmpty=m=>(!m.cond||m.cond==='ok') && !m.note && m.t==null && m.mp==null;
+function metaMsg(p){ if(p.cond) return `บันทึกสภาพ: ${COND[p.cond]}`; if('t' in p) return `บันทึกชนิดกล้อง: ${p.t||'ไม่ระบุ'}`; if('mp' in p) return `บันทึกความละเอียด: ${p.mp||'ไม่ระบุ'}`; return 'บันทึกหมายเหตุแล้ว'; }
+const CAM_TYPES=['Dome','Fixbox','Fisheye','Speeddome','Bullet','PTZ'];
+const CAM_MP=['1.3MP','2MP','3MP','4MP','5MP','8MP','1.3MP/WDR','3MP/WDR'];
+// ช่องแก้ชนิดกล้อง + ความละเอียด (ใช้ทั้ง CCTV / Counting) — ใส่ค่าปัจจุบันไว้เสมอแม้ไม่อยู่ในรายการ
+function typeEditor(c,isK){
+  const opt=(list,cur,none)=>{ const L=[...list]; if(cur&&!L.includes(cur)) L.unshift(cur); return `<option value=""${!cur?' selected':''}>${none}</option>`+L.map(v=>`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(v)}</option>`).join(''); };
+  const d=`data-f="${c.f.id}" data-i="${c.i}"${isK?' data-k="1"':''}`, orig=[c.ot,c.omp].filter(Boolean).join(' ')||'ไม่ระบุ';
+  return `<div class="flex items-center gap-1.5 whitespace-nowrap">
+    <select class="typesel bg-raise border ${c.typeEdited?'border-sky':'border-line2'} rounded-lg px-2 py-1 text-[12px]" ${d} aria-label="ชนิดกล้อง">${opt(CAM_TYPES,c.t,'ไม่ระบุชนิด')}</select>
+    <select class="mpsel bg-raise border ${c.typeEdited?'border-sky':'border-line2'} rounded-lg px-2 py-1 text-[12px]" ${d} aria-label="ความละเอียด">${opt(CAM_MP,c.mp,'— MP')}</select>
+    ${c.typeEdited?`<button class="typereset text-[11px] text-sky hover:underline" ${d} title="ค่าตามแบบ: ${esc(orig)}">↺ ตามแบบ</button>`:''}</div>`;
+}
 function setCntMeta(f,i,patch){
   const k=key(f,i), m={...(state.cmeta[k]||{}),...patch};
   if(m.note!=null) m.note=String(m.note).slice(0,200).trim();
-  if((!m.cond||m.cond==='ok') && !m.note) delete state.cmeta[k]; else state.cmeta[k]=m;
-  saveCntMeta(); renderOverlay(); renderList(); toast(patch.cond?`บันทึกสภาพ: ${COND[patch.cond]}`:'บันทึกหมายเหตุแล้ว');
+  if(m.t!==undefined && m.t===f.cams[i].t) delete m.t; if(m.mp!==undefined && m.mp===f.cams[i].mp) delete m.mp;
+  if(metaEmpty(m)) delete state.cmeta[k]; else state.cmeta[k]=m;
+  saveCntMeta(); renderOverlay(); renderList(); if(state.tab==='reg') renderReg(); toast(metaMsg(patch));
 }
 function exportCntCsv(){
   try{
@@ -864,7 +879,7 @@ function showPop(c){
   if(c.cond!=='ok') notes.push(`สภาพ: ${COND[c.cond]}${c.note?' — '+c.note:''}`);
   pop.innerHTML=`<div class="flex items-start gap-2"><i class="mt-1.5 w-2.5 h-2.5 rounded-full dotc s-${c.s} shrink-0"></i><div class="min-w-0">
       <div class="font-mono text-[18px] font-extrabold break-all ${c.ip?'':'text-violet'}">${esc(ipText(c))}</div>
-      <div class="text-[12px] text-muted">${esc(f.name)} · <span class="${c.t==='Fisheye'?'fishtag':''}">${esc(typeText(c))}</span> · ลำดับ ${c.i+1}</div></div></div>`+
+      <div class="text-[12px] text-muted">${esc(f.name)} · <span class="${c.t==='Fisheye'?'fishtag':''}">${esc(typeText(c))}</span>${c.typeEdited?' <span class="text-sky">(แก้ชนิดแล้ว)</span>':''} · ลำดับ ${c.i+1}</div></div></div>`+
     (notes.length?`<ul class="mt-2 text-[12px] list-disc pl-5 text-ink/90">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:'')+
     `<div class="mt-3 flex gap-1.5"><input id="popIp" class="ipedit flex-1 !w-auto" placeholder="10.2.155.xxx" value="${esc(c.ip||'')}" inputmode="decimal" aria-label="กำหนด IP">
       <button id="popSave" class="px-2.5 rounded-lg bg-mint text-[#050a14] font-semibold text-[12px]">บันทึก</button></div>
@@ -906,8 +921,9 @@ function setIp(f,i,raw){
 function setMeta(f,i,patch){
   const k=key(f,i), m={...(state.meta[k]||{}),...patch};
   if(m.note!=null) m.note=String(m.note).slice(0,200).trim();
-  if((!m.cond||m.cond==='ok') && !m.note) delete state.meta[k]; else state.meta[k]=m;
-  saveMeta(); refreshAll(); toast(patch.cond?`บันทึกสภาพ: ${COND[patch.cond]}`:'บันทึกหมายเหตุแล้ว');
+  if(m.t!==undefined && m.t===f.cams[i].t) delete m.t; if(m.mp!==undefined && m.mp===f.cams[i].mp) delete m.mp;
+  if(metaEmpty(m)) delete state.meta[k]; else state.meta[k]=m;
+  saveMeta(); refreshAll(); toast(metaMsg(patch));
 }
 function refreshAll(){ renderRail(); renderOverlay(); renderList(); if(state.tab==='dash') renderDash(); if(state.tab==='reg') renderReg(); }
 
@@ -1140,7 +1156,7 @@ function renderRegCnt(){
     <td class="px-4 py-2 whitespace-nowrap">${esc(c.f.name)}</td>
     <td class="px-3 py-2 text-faint tabular-nums">${c.i+1}</td>
     <td class="px-3 py-2 font-mono font-semibold whitespace-nowrap"><span class="inline-flex items-center gap-2"><i class="sqc" style="--c:${CC[c.g]}"></i>${esc(c.ip)}</span></td>
-    <td class="px-3 py-2 text-muted whitespace-nowrap">${esc([c.t,c.mp].filter(Boolean).join(' '))}</td>
+    <td class="px-3 py-2">${typeEditor(c,true)}</td>
     <td class="px-3 py-2"><span class="cbadge" style="--c:${CC[c.g]}">${esc(CNT_G[c.g].n)}</span></td>
     <td class="px-3 py-2 text-[12px] whitespace-nowrap">${cl?`<span class="text-orange-400">⚠ ตรงกับ CCTV ${esc(cl)}</span>`:'<span class="text-faint">ไม่ซ้ำ</span>'}</td>
     <td class="px-3 py-2"><select class="condsel bg-raise border border-line2 rounded-lg px-2 py-1 text-[12px]" data-k="1" data-f="${c.f.id}" data-i="${c.i}">${Object.entries(COND).map(([k,v])=>`<option value="${k}"${c.cond===k?' selected':''}>${v}</option>`).join('')}</select></td>
@@ -1161,7 +1177,7 @@ function renderReg(){
     <td class="px-4 py-2 border-b border-line/60 whitespace-nowrap">${esc(c.f.name)}</td>
     <td class="px-3 py-2 border-b border-line/60 text-faint tabular-nums">${c.i+1}</td>
     <td class="px-3 py-2 border-b border-line/60 font-mono font-semibold whitespace-nowrap ${c.ip?'':'text-violet font-ui'}">${esc(ipText(c))}</td>
-    <td class="px-3 py-2 border-b border-line/60 text-muted whitespace-nowrap">${esc(typeText(c))}</td>
+    <td class="px-3 py-2 border-b border-line/60">${typeEditor(c,false)}</td>
     <td class="px-3 py-2 border-b border-line/60"><span class="tagc border rounded-full px-2 py-0.5 text-[11px] whitespace-nowrap">${LABEL[c.s]}</span></td>
     <td class="px-3 py-2 border-b border-line/60"><input class="ipedit" data-f="${c.f.id}" data-i="${c.i}" value="${esc(c.ip||'')}" placeholder="10.2.155.xxx" inputmode="decimal" aria-label="IP ${esc(c.f.name)} ลำดับ ${c.i+1}"></td>
     <td class="px-3 py-2 border-b border-line/60"><select class="condsel bg-raise border border-line2 rounded-lg px-2 py-1 text-[12px]" data-f="${c.f.id}" data-i="${c.i}">${Object.entries(COND).map(([k,v])=>`<option value="${k}"${c.cond===k?' selected':''}>${v}</option>`).join('')}</select></td>
@@ -1194,7 +1210,12 @@ function importCsv(file){
         if(v && !IP_RE.test(v)) { bad++; return; }
         // สภาพกล้อง/หมายเหตุ (ถ้ามีคอลัมน์) — แปลงจากคำไทยกลับเป็นรหัส
         if('สภาพกล้อง' in r || 'หมายเหตุ' in r){ const ck=Object.keys(COND).find(k=>COND[k]===(r['สภาพกล้อง']||'').trim())||'ok', nt=(r['หมายเหตุ']||'').trim().slice(0,200);
-          const k=key(f,i), cur=state.meta[k]||{}; if((cur.cond||'ok')!==ck || (cur.note||'')!==nt){ if(ck==='ok'&&!nt) delete state.meta[k]; else state.meta[k]={cond:ck,note:nt}; upd++; } }
+          const k=key(f,i), cur=state.meta[k]||{}; if((cur.cond||'ok')!==ck || (cur.note||'')!==nt){ const m={...cur,cond:ck,note:nt}; if(metaEmpty(m)) delete state.meta[k]; else state.meta[k]=m; upd++; } }
+        // ชนิดกล้อง/ความละเอียด (ถ้ามีคอลัมน์) — ต่างจากแบบจึงเก็บเป็นค่าที่แก้
+        if('ชนิดกล้อง' in r || 'ความละเอียด' in r){ const k=key(f,i), cur=state.meta[k]||{}, oc=f.cams[i];
+          const nt=('ชนิดกล้อง' in r)?(r['ชนิดกล้อง']||'').trim().slice(0,30):(cur.t??oc.t), nm=('ความละเอียด' in r)?(r['ความละเอียด']||'').trim().slice(0,20):(cur.mp??oc.mp);
+          const m={...cur}; if(nt===oc.t) delete m.t; else m.t=nt; if(nm===oc.mp) delete m.mp; else m.mp=nm;
+          if(m.t!==cur.t||m.mp!==cur.mp){ if(metaEmpty(m)) delete state.meta[k]; else state.meta[k]=m; upd++; } }
         const orig=f.cams[i].ip||''; const cur=state.overrides[key(f,i)] ?? orig;
         if(v===cur) return;
         if(v===orig) delete state.overrides[key(f,i)]; else state.overrides[key(f,i)]=v; upd++;
@@ -1341,12 +1362,17 @@ function handleEvents(){
 
   ['rq','rFloor','rStatus','rCond'].forEach(id=>$(id).addEventListener('input',renderReg));
   $('rBody').addEventListener('change',e=>{ const t=e.target;
+    if(t.classList.contains('typesel')||t.classList.contains('mpsel')){ const K=!!t.dataset.k, f=(K?CFLOORS:FLOORS).find(x=>x.id===t.dataset.f); if(!f) return;
+      (K?setCntMeta:setMeta)(f,+t.dataset.i, t.classList.contains('typesel')?{t:t.value}:{mp:t.value}); return; }
     if(t.dataset.k){ const f=CFLOORS.find(x=>x.id===t.dataset.f); if(!f) return;
       if(t.classList.contains('condsel')) setCntMeta(f,+t.dataset.i,{cond:t.value});
       if(t.classList.contains('notein')) setCntMeta(f,+t.dataset.i,{note:t.value}); return; }
     const f=FLOORS.find(x=>x.id===t.dataset.f); if(!f) return;
     if(t.classList.contains('condsel')) setMeta(f,+t.dataset.i,{cond:t.value});
     if(t.classList.contains('notein')) setMeta(f,+t.dataset.i,{note:t.value}); });
+  $('rBody').addEventListener('click',e=>{ const b=e.target.closest('.typereset'); if(!b) return; const K=!!b.dataset.k, f=(K?CFLOORS:FLOORS).find(x=>x.id===b.dataset.f); if(!f) return;
+    const k=key(f,+b.dataset.i), M=K?state.cmeta:state.meta, m={...(M[k]||{})}; delete m.t; delete m.mp;
+    if(metaEmpty(m)) delete M[k]; else M[k]=m; K?saveCntMeta():saveMeta(); refreshAll(); toast('คืนชนิดกล้องตามแบบแล้ว'); });
   document.querySelectorAll('#regSeg button').forEach(b=>b.onclick=()=>{ if(state.regMode!==b.dataset.rm) setRegMode(b.dataset.rm) });
   $('regMnK').textContent=CNT_TOTAL;
   $('fxBtn').onclick=()=>{ setFx(!state.fxOn); toast(state.fxOn?'เปิดพื้นหลังเคลื่อนไหว':'ปิดพื้นหลังเคลื่อนไหว (พื้นหลังนิ่ง)') };
@@ -1357,7 +1383,7 @@ function handleEvents(){
   document.querySelectorAll('[data-sort]').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; state.sort={key:k,dir:state.sort.key===k?-state.sort.dir:1}; renderReg() });
   $('rBody').addEventListener('change',e=>{ const i=e.target.closest('.ipedit'); if(!i) return; const f=FLOORS.find(x=>x.id===i.dataset.f); setIp(f,+i.dataset.i,i.value) });
   $('rBody').addEventListener('input',e=>{ const i=e.target.closest('.ipedit'); if(i) i.classList.toggle('bad', !!i.value.trim() && !IP_RE.test(i.value.trim())) });
-  $('btnReset').onclick=()=>ask('ล้างการแก้ไขทั้งหมด?','IP ที่กำหนดเอง สภาพกล้อง และหมายเหตุทั้งหมดจะถูกล้าง',()=>{ state.overrides={}; state.meta={}; state.cmeta={}; saveOverrides(); saveMeta(); saveCntMeta(); refreshAll(); toast('ล้างการแก้ไขแล้ว') });
+  $('btnReset').onclick=()=>ask('ล้างการแก้ไขทั้งหมด?','IP ที่กำหนดเอง ชนิดกล้องที่แก้ สภาพกล้อง และหมายเหตุทั้งหมดจะถูกล้าง',()=>{ state.overrides={}; state.meta={}; state.cmeta={}; saveOverrides(); saveMeta(); saveCntMeta(); refreshAll(); toast('ล้างการแก้ไขแล้ว') });
 
   $('btnTheme').onclick=()=>{ applyTheme(isLight()?'dark':'light'); toast(isLight()?'โหมดสว่าง':'โหมดมืด') };
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&state.tab==='dash') startDashFx() });
